@@ -41,14 +41,14 @@ void initializeMap()
     BEARCATII.insert(pair<string, int>(" ", 0));
 }
 
-bool isValidKey(int key)
+bool isValidKey(unsigned long long int key)
 {
     return true;
 }
 
-int requestPublicKey()
+unsigned long long int requestPublicKey()
 {
-    int tempPublicKey;
+    unsigned long long int tempPublicKey;
     cout << "Please enter a positive integer for the public key: ";
     cin >> tempPublicKey;
     while (!isValidKey(tempPublicKey))
@@ -87,6 +87,7 @@ string bearcatiiToString(vector<int> input)
 int main()
 {
     initializeMap();
+    unsigned long long int key = requestPublicKey();
     string message = "";
     cout << "Please enter a valid message: ";
     getline(cin, message);
