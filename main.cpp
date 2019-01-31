@@ -3,6 +3,7 @@
 #include <iterator>
 #include <map>
 #include <vector>
+#include <tgmath.h>
 
 using namespace std;
 
@@ -62,7 +63,7 @@ string getUserMessage()
 {
     string tempString;
     cout << "Please enter a valid message: ";
-    cin.ignore(1000, '\n');
+    //cin.ignore(1000, '\n');
     getline(cin, tempString);
     cout << tempString;
     return tempString;
@@ -72,7 +73,7 @@ string getUserMessage()
 vector<int> stringToBearcatii(string input)
 {
     vector<int> output;
-    for (int i = 0; i <= input.size(); i++)
+    for (int i = 0; i <= input.size()-1; i++)
     {
         string s(1, input[i]);
         int temp = BEARCATII.find(s)->second;
@@ -84,11 +85,15 @@ vector<int> stringToBearcatii(string input)
 unsigned long long int base27todecimal(vector<int> base27)
 {
     unsigned long long int sum = 0;
-    for (int i = 0; i < base27.size(); i++)
+    int beginingSize = base27.size();
+    for (int i = 0; i < beginingSize; i++)
     {
-        sum += base27.back()*(27^i);
+        int x = base27.back();
+        int y = pow(27, i);
+        sum += x*y;
         base27.pop_back();
     }
+    return sum;
 }
 
 //converts bearcatii to string
@@ -137,11 +142,16 @@ int main()
     // initialize the bearcatii map
     initializeMap();
     // request the public key from user
-    unsigned long long int key = requestPublicKey();
+  //  unsigned long long int key = requestPublicKey();
     // request the message to be encrypted
     string message = getUserMessage();
     // convert to bearcatti
     vector<int> bearcatiiMessage = stringToBearcatii(message);
+
+    int y = base27todecimal(bearcatiiMessage);
+    vector<int> x = decimalToBase27(y);
+
+
     // encrypt using bearcatiiMessage
 
     //decrypt the message
