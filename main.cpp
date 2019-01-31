@@ -94,6 +94,20 @@ string bearcatiiToString(vector<int> input)
     return temp;
 }
 
+vector<int> decimalToBase27 (int number)
+{
+    vector<int> output;
+    int base = 27;
+    int num = number;
+    while (num >= base)
+    {
+        output.insert(output.begin(), num % base);
+        num = num / 27;
+    }
+    output.insert(output.begin(), num);
+    return output;
+}
+
 vector<int> encrypt (string messageToEncrypt)
 {
     vector<int> input = stringToBearcatii(messageToEncrypt);
