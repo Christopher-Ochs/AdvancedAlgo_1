@@ -107,9 +107,19 @@ string decrypt (vector<int> messageToDecrypt)
 
 int main()
 {
+    // initialize the bearcatii map
     initializeMap();
+    // request the public key from user
     unsigned long long int key = requestPublicKey();
+    // request the message to be encrypted
     string message = getUserMessage();
+    // convert to bearcatti
+    vector<int> bearcatiiMessage = stringToBearcatii(message);
+    // encrypt using bearcatiiMessage
+
+    //decrypt the message
+
+    // display needed output
 
     return 0;
 }
