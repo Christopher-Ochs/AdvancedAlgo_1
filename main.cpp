@@ -81,6 +81,16 @@ vector<int> stringToBearcatii(string input)
     return output;
 }
 
+unsigned long long int base27todecimal(vector<int> base27)
+{
+    unsigned long long int sum = 0;
+    for (int i = 0; i < base27.size(); i++)
+    {
+        sum += base27.back()*(27^i);
+        base27.pop_back();
+    }
+}
+
 //converts bearcatii to string
 string bearcatiiToString(vector<int> input)
 {
