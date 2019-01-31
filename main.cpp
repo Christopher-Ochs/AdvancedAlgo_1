@@ -94,6 +94,17 @@ string bearcatiiToString(vector<int> input)
     return temp;
 }
 
+vector<int> encrypt (string messageToEncrypt)
+{
+    vector<int> output;
+    return output;
+}
+
+string decrypt (vector<int> messageToDecrypt)
+{
+    return "";
+}
+
 int main()
 {
     initializeMap();
