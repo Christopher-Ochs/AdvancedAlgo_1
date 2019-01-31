@@ -58,6 +58,16 @@ unsigned long long int requestPublicKey()
     return tempPublicKey;
 }
 
+string getUserMessage()
+{
+    string tempString;
+    cout << "Please enter a valid message: ";
+    cin.ignore(1000, '\n');
+    getline(cin, tempString);
+    cout << tempString;
+    return tempString;
+}
+
 // converts string to vector of bearcatii values
 vector<int> stringToBearcatii(string input)
 {
@@ -88,10 +98,7 @@ int main()
 {
     initializeMap();
     unsigned long long int key = requestPublicKey();
-    string message = "";
-    cout << "Please enter a valid message: ";
-    getline(cin, message);
-    cout << bearcatiiToString(stringToBearcatii(message));
+    string message = getUserMessage();
 
     return 0;
 }
