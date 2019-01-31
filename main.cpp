@@ -96,13 +96,16 @@ string bearcatiiToString(vector<int> input)
 
 vector<int> encrypt (string messageToEncrypt)
 {
+    vector<int> input = stringToBearcatii(messageToEncrypt);
     vector<int> output;
     return output;
 }
 
 string decrypt (vector<int> messageToDecrypt)
 {
-    return "";
+    vector<int> decryptedBearcatii;
+    string decrytpetdMessage = bearcatiiToString(decryptedBearcatii);
+    return decrytpetdMessage;
 }
 
 int main()
