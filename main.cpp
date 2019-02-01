@@ -42,6 +42,21 @@ void initializeMap()
     BEARCATII.insert(pair<string, int>(" ", 0));
 }
 
+// Implement Euclid GCD
+unsigned long long int GCD(unsigned long long int num1, unsigned long long int num2)
+{
+    return 0;
+}
+
+// Implement Miller-Rabin Algorithm to test for composite
+bool millerRabin(unsigned long long int num)
+{
+    // return true if proved to composite
+
+    // return false if otherewise
+    return false;
+}
+
 bool isValidKey(unsigned long long int key)
 {
     return true;
@@ -63,9 +78,8 @@ string getUserMessage()
 {
     string tempString;
     cout << "Please enter a valid message: ";
-    //cin.ignore(1000, '\n');
+    cin.ignore(1000, '\n');
     getline(cin, tempString);
-    cout << tempString;
     return tempString;
 }
 
@@ -142,15 +156,14 @@ int main()
     // initialize the bearcatii map
     initializeMap();
     // request the public key from user
-  //  unsigned long long int key = requestPublicKey();
+    unsigned long long int key = requestPublicKey();
     // request the message to be encrypted
     string message = getUserMessage();
     // convert to bearcatti
     vector<int> bearcatiiMessage = stringToBearcatii(message);
 
-    int y = base27todecimal(bearcatiiMessage);
-    vector<int> x = decimalToBase27(y);
-
+    // convert to base27 long long int
+    unsigned long long int messageB27 =  base27todecimal(bearcatiiMessage);
 
     // encrypt using bearcatiiMessage
 
