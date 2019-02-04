@@ -59,10 +59,13 @@ unsigned long long int gcd(unsigned long long int num1, unsigned long long int n
 }
 
 // Implement Miller-Rabin Algorithm to test for composite
-bool millerRabin(unsigned long long int num)
+bool millerRabin(unsigned long long int num, int accuracyFactor = 10)
 {
     // return true if proved to composite
-
+    for (int i = 0; i < accuracyFactor; i++)
+    {
+        unsigned long long int randomNum = rand() % num -2 + 2;
+    }
     // return false if otherwise
     return false;
 }
