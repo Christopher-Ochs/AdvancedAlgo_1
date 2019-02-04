@@ -42,10 +42,20 @@ void initializeMap()
     BEARCATII.insert(pair<string, int>(" ", 0));
 }
 
-// Implement Euclid GCD
-unsigned long long int GCD(unsigned long long int num1, unsigned long long int num2)
+// Implement Euclid gcd
+unsigned long long int gcd(unsigned long long int num1, unsigned long long int num2)
 {
-    return 0;
+    // Loop while num2 != 0
+    while (num2 != 0)
+    {
+        // Store num2 in temp for later
+        unsigned long long int temp = num2;
+        // update num2
+        num2 = num1 % num2;
+        // uopdate num1 from temp
+        num1 = temp;
+    }
+    return num1;
 }
 
 // Implement Miller-Rabin Algorithm to test for composite
@@ -53,7 +63,7 @@ bool millerRabin(unsigned long long int num)
 {
     // return true if proved to composite
 
-    // return false if otherewise
+    // return false if otherwise
     return false;
 }
 
@@ -154,16 +164,18 @@ string decrypt (vector<int> messageToDecrypt)
 int main()
 {
     // initialize the bearcatii map
-    initializeMap();
-    // request the public key from user
-    unsigned long long int key = requestPublicKey();
-    // request the message to be encrypted
-    string message = getUserMessage();
-    // convert to bearcatti
-    vector<int> bearcatiiMessage = stringToBearcatii(message);
+//    initializeMap();
+//    // request the public key from user
+//    unsigned long long int key = requestPublicKey();
+//    // request the message to be encrypted
+//    string message = getUserMessage();
+//    // convert to bearcatti
+//    vector<int> bearcatiiMessage = stringToBearcatii(message);
+//
+//    // convert to base27 long long int
+//    unsigned long long int messageB27 =  base27todecimal(bearcatiiMessage);
 
-    // convert to base27 long long int
-    unsigned long long int messageB27 =  base27todecimal(bearcatiiMessage);
+
 
     // encrypt using bearcatiiMessage
 
