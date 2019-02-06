@@ -1,190 +1,287 @@
+// Homework1RSA.cpp : RSA Implementation
+// 
+
+/*
+CS 7081 Advanced Algorithms I
+Homework Assignment 1
+
+Group 13:
+Philip Tallo
+Christopher Ochs
+Solomon Lazarus
+
+Due : February 6, 2018
+*/
+
 #include <iostream>
 #include <string>
-#include <iterator>
-#include <map>
-#include <vector>
-#include <tgmath.h>
+#include <time.h>
 
-using namespace std;
+const int MONTE_CARLO_REPS = 8; // number of repetitions for the Miller-Rabin primality test
 
-// Global variable of Bearcatii map.  Used to convert form
-std::map<string, int> BEARCATII;
+unsigned long long int stringToInt(std::string inputStr) {
+    // Converts a string from BEARCATII to a single integer
+    // Raises an error if the string is not in BEARCATII
 
-// Init map values
-void initializeMap()
-{
-    BEARCATII.insert(pair<string, int>("a", 1));
-    BEARCATII.insert(pair<string, int>("b", 2));
-    BEARCATII.insert(pair<string, int>("c", 3));
-    BEARCATII.insert(pair<string, int>("d", 4));
-    BEARCATII.insert(pair<string, int>("e", 5));
-    BEARCATII.insert(pair<string, int>("f", 6));
-    BEARCATII.insert(pair<string, int>("g", 7));
-    BEARCATII.insert(pair<string, int>("h", 8));
-    BEARCATII.insert(pair<string, int>("i", 9));
-    BEARCATII.insert(pair<string, int>("j", 10));
-    BEARCATII.insert(pair<string, int>("k", 11));
-    BEARCATII.insert(pair<string, int>("l", 12));
-    BEARCATII.insert(pair<string, int>("m", 13));
-    BEARCATII.insert(pair<string, int>("n", 14));
-    BEARCATII.insert(pair<string, int>("o", 15));
-    BEARCATII.insert(pair<string, int>("p", 16));
-    BEARCATII.insert(pair<string, int>("q", 17));
-    BEARCATII.insert(pair<string, int>("r", 18));
-    BEARCATII.insert(pair<string, int>("s", 19));
-    BEARCATII.insert(pair<string, int>("t", 20));
-    BEARCATII.insert(pair<string, int>("u", 21));
-    BEARCATII.insert(pair<string, int>("v", 22));
-    BEARCATII.insert(pair<string, int>("w", 23));
-    BEARCATII.insert(pair<string, int>("x", 24));
-    BEARCATII.insert(pair<string, int>("y", 25));
-    BEARCATII.insert(pair<string, int>("z", 26));
-    BEARCATII.insert(pair<string, int>(" ", 0));
-}
+    unsigned long long int D = 0; // decimal representation of the input
+    int ch; // holds the currently read character
+    unsigned long long int pow27 = 1; // store powers of 27, starting with 27^0 = 1
 
-// Implement Euclid gcd
-unsigned long long int gcd(unsigned long long int num1, unsigned long long int num2)
-{
-    // Loop while num2 != 0
-    while (num2 != 0)
-    {
-        // Store num2 in temp for later
-        unsigned long long int temp = num2;
-        // update num2
-        num2 = num1 % num2;
-        // uopdate num1 from temp
-        num1 = temp;
+    // loop through all characters from right to left
+    for (int i = inputStr.length() - 1; i >= 0; i--) {
+
+        // Read current character and convert to BEARCATII
+        ch = inputStr.at(i);
+
+        if (ch == 32) { //space
+            ch = 0;
+        } else if (ch >= 97 && ch <= 122) { // a to z
+            ch = ch - 96;
+        } else {
+            std::cout << "Error: string contains a non-BEARCATII character. Use only lowercase letters and spaces.\n";
+            return -1;
+        }
+
+        // Incorporate this character into D
+        D += (ch * pow27);
+
+        // Update pow27
+        pow27 = pow27 * 27;
     }
-    return num1;
+
+    return D;
 }
 
-// Implement Miller-Rabin Algorithm to test for composite
-bool millerRabin(unsigned long long int num, int accuracyFactor = 10)
-{
-    // return true if proved to composite
-    for (int i = 0; i < accuracyFactor; i++)
-    {
-        unsigned long long int randomNum = rand() % num -2 + 2;
+std::string intToString(unsigned long long int D) {
+    // Converts an integer to the BEARCATII string it represents
+
+    int intVal;
+    char ch = ' ';
+    std::string result = "";
+
+    while (D > 0) {
+        // Get current character int value and update D
+        intVal = D % 27;
+        D = D / 27;
+
+        // Convert the character int value to a character and prepend it to the front of the result
+        if (intVal == 0) {
+            ch = ' ';
+        } else if (intVal >= 1 && intVal <= 26) {
+            ch = intVal + 96;
+        }
+        result = ch + result;
     }
-    // return false if otherwise
-    return false;
+
+    return result;
 }
 
-bool isValidKey(unsigned long long int key)
-{
+unsigned long long int gcd(unsigned long long int a, unsigned long long int b) {
+    // Returns the GCD of a and b, using the Euclidean algorithm
+
+    unsigned long long int remainder;
+
+    while (b != 0) {
+        remainder = a % b;
+        a = b;
+        b = remainder;
+    }
+
+    return a;
+}
+
+void extendedEuclidGCD(unsigned long long int a, unsigned long long int b, unsigned long long int &g, int &s, int &t) {
+    // Given a and b, will output (by reference) g = gcd(a,b), and integers s and t such that sa+tb=g
+    int stemp, remainder, quotient;
+
+    if (b == 0) {
+        g = a;
+        s = 1;
+        t = 0;
+    } else {
+        remainder = a % b;
+        quotient = a / b;
+        extendedEuclidGCD(b, remainder, g, s, t);
+        stemp = s;
+        s = t;
+        t = stemp - (t * quotient);
+    }
+}
+
+unsigned long long int multiplicativeInverse(unsigned long long int x, unsigned long long int n) {
+    // Computes the modulo n multiplicative inverse of x
+    // This result is the s value returned by extendedEuclidGCD, such that sx + tn = gcd(x, n) = 1
+    // However, s can be negative. If this is the case, add n to the value of s for the correct
+    // result in the modular finite field arithmetic.
+
+    unsigned long long int g = 0;
+    int s = 0, t = 0;
+    extendedEuclidGCD(x, n, g, s, t);
+
+    if (s < 0)
+        return n + s;
+    else
+        return s;
+}
+
+unsigned long long int modPowers(unsigned long long int x, unsigned long long int m, unsigned long long int n) {
+    // Computes (x ^ m) mod n
+    if (m == 0) {
+        return 1;
+    } else if (m == 1) {
+        return x;
+    } else if (m % 2 == 0) { // if m is even
+        return modPowers((x * x) % n, m / 2, n) % n;
+    } else { // m is odd
+        return x * modPowers((x * x) % n, (m - 1) / 2, n) % n;
+    }
+}
+
+bool millerRabinPrimalityTest(int n) {
+    // Implementation of the Miller-Rabin primality test.
+
+    // Hard-coded results for n < 5
+    if (n == 0 || n == 1 || n == 4) return false;
+    if (n == 2 || n == 3) return true;
+
+    // Generate a random value for a on interval 2 to n-2
+    int a = rand() % (n - 3); // a is a random number between 0 and n-4
+    a = a + 2; // now a is a random number between 2 and n-2
+
+    // Find positive integers k,m such that n-1 = (2^k)*m and m is odd
+    int k = 0;
+    int m = n - 1;
+    while (m % 2 == 0) {
+        k++;
+        m = m / 2;
+    }
+
+    // Initialize b = (a^m) mod n
+    unsigned long long int b = modPowers(a, m, n);
+
+    // Loop to update b and see if a result can be returned
+    for (int j = 1; j <= k; j++) {
+        if (b != 1 && b != n - 1)
+            return false;
+        else if (b == n - 1)
+            return true;
+        b = b * b % n;
+    }
+
+    // Return a result
+    if (b != 1)
+        return false;
+    else
+        return true;
+}
+
+bool isPrime(int n) {
+    // Runs the Miller-Rabin primality test multiple times.
+    // If this returns false, then x is composite
+    // If this returns true, then there is a high probability that n is prime
+
+    for (int i = 0; i <= MONTE_CARLO_REPS; i++) {
+        if (millerRabinPrimalityTest(n) == false) {
+            return false;
+        }
+    }
     return true;
 }
 
-unsigned long long int requestPublicKey()
-{
-    unsigned long long int tempPublicKey;
-    cout << "Please enter a positive integer for the public key: ";
-    cin >> tempPublicKey;
-    while (!isValidKey(tempPublicKey))
-    {
-        requestPublicKey();
+int generatePrime() {
+    // Generates a random prime number
+    int n;
+
+    do {
+        n = rand();
+    } while (!isPrime(n));
+
+    return n;
+}
+
+unsigned long long int readInt() {
+    // Reads an integer value from the user
+    unsigned long long int x;
+    std::cin >> x;
+
+    while (std::cin.fail()) {
+        std::cout << "Error: Not a positive integer, please reinput.\n";
+        std::cin.clear();
+        std::cin.ignore(256, '\n');
+        std::cin >> x;
     }
-    return tempPublicKey;
+
+    return x;
 }
 
-string getUserMessage()
-{
-    string tempString;
-    cout << "Please enter a valid message: ";
-    cin.ignore(1000, '\n');
-    getline(cin, tempString);
-    return tempString;
-}
+int main() {
+    // Seed the RNG
+    srand(time(NULL));
 
-// converts string to vector of bearcatii values
-vector<int> stringToBearcatii(string input)
-{
-    vector<int> output;
-    for (int i = 0; i <= input.size()-1; i++)
-    {
-        string s(1, input[i]);
-        int temp = BEARCATII.find(s)->second;
-        output.push_back(temp);
+    std::cout << millerRabinPrimalityTest(15487469) << std::endl;
+
+    // Read the input message from the user
+    std::string M;
+
+    std::cout << "Enter your input message: \n";
+    std::getline(std::cin, M);
+
+    if (M.length() < 1) {
+        std::cout << "Error: message length is 0.\n";
+        return -1;
+    } else if (M.length() > 4) {
+        std::cout << "Error: maximum message length is 4.\n";
+        return -1;
     }
-    return output;
-}
 
-unsigned long long int base27todecimal(vector<int> base27)
-{
-    unsigned long long int sum = 0;
-    int beginingSize = base27.size();
-    for (int i = 0; i < beginingSize; i++)
-    {
-        int x = base27.back();
-        int y = pow(27, i);
-        sum += x*y;
-        base27.pop_back();
+    // Get integer representation of the string
+    unsigned long long int D = stringToInt(M);
+    if (D == -1) {
+        // quit if there was an error
+        return -1;
     }
-    return sum;
-}
 
-//converts bearcatii to string
-string bearcatiiToString(vector<int> input)
-{
-    string temp = "";
-    for (int i = 0; i <= input.size(); i++)
-    {
-        for (auto it = BEARCATII.begin(); it != BEARCATII.end(); ++it )
-            if (it->second == input[i])
-                temp.append(it->first);
+    // Generate random primes p and q, and compute n = p * q and totient_n = (p-1)*(q-1)
+    // Ensure that 14,348,906 < n < 4,294,967,297
+    unsigned long long int p, q, n, totient_n;
+    n = 0;
+    while (n <= 14348906 || n >= 4294967297) {
+        p = generatePrime();
+        q = generatePrime();
+        n = p * q;
+        totient_n = (p - 1) * (q - 1);
     }
-    return temp;
-}
 
-vector<int> decimalToBase27 (int number)
-{
-    vector<int> output;
-    int base = 27;
-    int num = number;
-    while (num >= base)
-    {
-        output.insert(output.begin(), num % base);
-        num = num / 27;
+    // Prompt the user for a public key, e, until the user picks one that is coprime with totient_n
+    std::cout << "Choose a public key, a positive integer that is coprime with " << totient_n << ": \n";
+    unsigned long long int e = readInt();
+    while (gcd(e, totient_n) != 1) {
+        std::cout << "Values are not coprime, choose another positive integer for the public key:\n";
+        e = readInt();
     }
-    output.insert(output.begin(), num);
-    return output;
-}
 
-vector<int> encrypt (string messageToEncrypt)
-{
-    vector<int> input = stringToBearcatii(messageToEncrypt);
-    vector<int> output;
-    return output;
-}
+    // Generate the private key, d
+    // This is the multiplicative inverse of e modulo totient_n
+    unsigned long long int d = multiplicativeInverse(e, totient_n);
 
-string decrypt (vector<int> messageToDecrypt)
-{
-    vector<int> decryptedBearcatii;
-    string decrytpetdMessage = bearcatiiToString(decryptedBearcatii);
-    return decrytpetdMessage;
-}
+    // Generate ciphertext integer C = (D ^ e) mod n
+    unsigned long long int C = modPowers(D, e, n);
 
-int main()
-{
-    // initialize the bearcatii map
-//    initializeMap();
-//    // request the public key from user
-//    unsigned long long int key = requestPublicKey();
-//    // request the message to be encrypted
-//    string message = getUserMessage();
-//    // convert to bearcatti
-//    vector<int> bearcatiiMessage = stringToBearcatii(message);
-//
-//    // convert to base27 long long int
-//    unsigned long long int messageB27 =  base27todecimal(bearcatiiMessage);
+    // Generate plaintext integer P = (C ^ d) mod n
+    unsigned long long int P = modPowers(C, d, n);
 
-
-
-    // encrypt using bearcatiiMessage
-
-    //decrypt the message
-
-    // display needed output
+    // Output the results
+    std::cout << "\np: " << p << "\n";
+    std::cout << "q: " << q << "\n";
+    std::cout << "n: " << n << "\n";
+    std::cout << "M (string representation): " << M << "\n";
+    std::cout << "M (integer representation): " << D << "\n";
+    std::cout << "C (string representation): " << intToString(C) << "\n";
+    std::cout << "C (integer representation): " << C << "\n";
+    std::cout << "P (string representation): " << intToString(P) << "\n";
+    std::cout << "P (integer representation): " << P << "\n";
 
     return 0;
 }
+
+
